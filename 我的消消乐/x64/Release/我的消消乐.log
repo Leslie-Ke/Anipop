@@ -1,6 +1,8 @@
 ﻿  main.cpp
+D:\vscode\我的消消乐\我的消消乐\main.cpp(45,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
   正在生成代码
-  Previous IPDB not found, fall back to full compilation.
-  All 6 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  12 of 13 functions (92.3%) were compiled, the rest were copied from previous compilation.
+    7 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   我的消消乐.vcxproj -> D:\vscode\我的消消乐\x64\Release\我的消消乐.exe
