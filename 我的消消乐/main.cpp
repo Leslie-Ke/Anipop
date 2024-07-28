@@ -10,6 +10,7 @@
 //2.构建初始的方块数组
 //3.解决游戏界面中图标小黑边问题，完成游戏基础界面的全部设计
 //4.设计游戏架构和方块移动（方块移动未实现）
+//5.实现方块间的移动，但是不能判断能否消除方块
 
 #define WIN_WIDHT			485
 #define	WIN_HEIGHT			817
@@ -84,7 +85,14 @@ void updateWindow() {
 }
 
 void exchange(int row1, int col1, int row2, int col2) {
-	// to do.
+	struct block tmp = map[row1][col1];
+	map[row1][col1] = map[row2][col2];
+	map[row2][col2]  = tmp;
+
+	map[row1][col1].row = row1;
+	map[row1][col1].col = col1;
+	map[row2][col2].col = col2;
+	map[row2][col2].row = row2;
 }
 
 void userClick() {
@@ -126,7 +134,22 @@ void userClick() {
 }
 
 void move() {
+	for (int i = ROWS; i > 0; i--) {
+		for (int j = 1; j <= COLS; j++) {
+			struct block* p = &map[i][j];
+			for (int k = 0; k < 4; k++) {
 
+				int x = off_x + (p->col - 1) * (block_size + 5);
+				int y = off_y + (p->row - 1) * (block_size + 5);
+
+				int dx = p->x - x;
+				int dy = p->y - y;
+
+				if (dx) p->x -= dx / abs(dx);
+				if (dy) p->y -= dy / abs(dy);
+			}
+		}
+	}
 }
 
 void huanYuan() {
