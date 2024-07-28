@@ -2,12 +2,14 @@
 #include <graphics.h>//easyx图形库的头文件
 #include <time.h>
 #include <tchar.h>
+#include <math.h>
 #include "tools.h"//用于实现取消数组图标的小黑边
 
 //开发日志
 //1.构建初始的界面
 //2.构建初始的方块数组
 //3.解决游戏界面中图标小黑边问题，完成游戏基础界面的全部设计
+//4.设计游戏架构和方块移动（方块移动未实现）
 
 #define WIN_WIDHT			485
 #define	WIN_HEIGHT			817
@@ -30,9 +32,13 @@ const int off_x = 17;//定义数组在水平方向上距离
 const int off_y = 174;//定义数组在竖直方向的距离
 const int block_size = 52;//小方块尺寸
 
+int click;//表示相邻两个位置的单击次数，第二次点击时才会进行交换
+int posX1, posY1;//第一次单击的行和列
+int posX2, posY2;//第二次单击的行和列
+
 void init() {
 	//创建游戏窗口
-	initgraph(WIN_WIDHT, WIN_HEIGHT);
+	initgraph(WIN_WIDHT, WIN_HEIGHT, 1);
 	loadimage(&imgBg, _T("res/bg2.png"),WIN_WIDHT,WIN_HEIGHT,true);
 	//_T("...") 是一个宏，用于在 Unicode 和 ASCII 编译设置之间自动切换。
 
@@ -58,9 +64,12 @@ void init() {
 			map[i][j].y = off_y + (i - 1) * (block_size + 5);
 		}
 	}
+
+	click = 0;
 }
 
 void updateWindow() {
+	BeginBatchDraw();//开始双缓冲
 	putimage(0, 0, &imgBg);
 
 	for (int i = 1; i <= ROWS; i++) {
@@ -71,10 +80,71 @@ void updateWindow() {
 			}
 		}
 	}
+	EndBatchDraw();//结束双缓冲
+}
+
+void exchange(int row1, int col1, int row2, int col2) {
+	// to do.
+}
+
+void userClick() {
+	ExMessage msg;//最新版本的easyx版本自带
+	if (peekmessage(&msg) && msg.message == WM_LBUTTONDOWN) {
+		
+		/*map[i][j].x = off_x + (j - 1) * (block_size + 5);
+		map[i][j].y = off_y + (i - 1) * (block_size + 5);*/
+		if (msg.x < off_x || msg.y < off_y) return;
+		
+		int col = (msg.x - off_x) / (block_size + 5) + 1;
+		int row = (msg.y - off_y) / (block_size + 5) + 1;
+
+		if (col > COLS || row > ROWS) return;
+		//确保用户点击位置在数组内
+		
+		click++;
+		if (click == 1) {
+			posX1 = col;
+			posY1 = row;
+		}
+		else if (click == 2) {
+			posX2 = col;
+			posY2 = row;
+
+			if (abs(posX2 - posX1) + abs(posY2 - posY1) == 1) {
+				exchange(posY1, posX1, posY2, posX2);
+				click = 0;
+				//后续音效
+			}
+			else {
+				click = 1;
+				posX1 = col;
+				posY1 = row;
+			}
+		}
+	}
+
+}
+
+void move() {
+
+}
+
+void huanYuan() {
+
 }
 int main() {
 	init();//初始化
-	updateWindow();//用来更新窗口
+	
+	while (true)
+	{
+		userClick();//处理用户点击操作
+		move();//方块移动
+		huanYuan();//还原
+		updateWindow();//用来更新窗口
+
+		Sleep(10);//帧等待(后续考虑优化)
+	}
+
 	system("pause");
 	return 0;
 }
