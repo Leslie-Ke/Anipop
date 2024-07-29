@@ -218,6 +218,7 @@ void xiaochu() {
 }
 
 void  updateGame() {
+	//下降
 	for (int i = ROWS; i >= 1; i--) {
 		for (int j = 1; j <= COLS; j++) {
 			if (map[i][j].match) {
@@ -230,7 +231,19 @@ void  updateGame() {
 			}
 		}
 	}
-
+	//生成新方块进行降落处理
+	for (int i = 1; i <= COLS; i++) {
+		int n = 0;
+		for (int j = ROWS; j >= 1; j--) {
+			if (map[i][j].match) {
+				map[i][j].type = 1 + rand() % 7;
+				map[i][j].y = off_y - (n + 1) * (block_size + 5);
+				n++;
+				map[i][j].match = 0;
+				map[i][j].tomin = 255;
+			}
+		}
+	}
 }
 int main() {
 	init();//初始化
