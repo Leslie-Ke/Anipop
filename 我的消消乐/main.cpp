@@ -11,6 +11,9 @@
 //3.解决游戏界面中图标小黑边问题，完成游戏基础界面的全部设计
 //4.设计游戏架构和方块移动（方块移动未实现）
 //5.实现方块间的移动，但是不能判断能否消除方块
+//6.初步实现方块的还原
+//7.完成方块还原的判断条件
+//8.实现方块消除功能
 
 #define WIN_WIDHT			485
 #define	WIN_HEIGHT			817
@@ -25,6 +28,8 @@ struct block{
 	int type;//方块的类型，0表示空白
 	int x, y;
 	int row, col;//表示行和列
+	int match;//匹配次数
+	int tomin;//透明度：0-255.0完全透明
 };
 
 struct block map[ROWS+2][COLS+2];//给数组扩充这样就不用担心越界
@@ -66,6 +71,8 @@ void init() {
 			map[i][j].col = j;
 			map[i][j].x = off_x + (j - 1) * (block_size + 5);
 			map[i][j].y = off_y + (i - 1) * (block_size + 5);
+			map[i][j].match = 0;
+			map[i][j].tomin = 255;
 		}
 	}
 
@@ -82,7 +89,7 @@ void updateWindow() {
 		for (int j = 1; j <= COLS; j++) {
 			if (map[i][j].type ) {
 				IMAGE* img = &imgBlocks[map[i][j].type - 1];
-				putimagePNG(map[i][j].x, map[i][j].y, img);
+				putimageTMD(map[i][j].x, map[i][j].y, img,map[i][j].tomin);
 			}
 		}
 	}
@@ -167,11 +174,45 @@ void huanYuan() {
 	//发生移动后，而且这个单向移动已经结束
 	if (isSwap && !isMoving) {
 		//如果没有匹配到三个或者三个以上的方块，就设置还原
-		if (1) {//后续优化，先完成还原的基础逻辑代码
+
+		int count;
+		for (int i = 1; i <= ROWS; i++) {
+			for (int j = 1; j <= COLS; j++) {
+				count += map[i][j].match;
+			}
+		}
+		if (count == 0) {//后续优化，先完成还原的基础逻辑代码
 			exchange(posY1, posX1, posY2, posX2);
 		}
 
 		isSwap = false;
+	}
+}
+
+void check() {
+	for (int i = 1; i <= ROWS; i++) {
+		for (int j = 1; j <= COLS; j++) {
+			if (map[i][j].type == map[i - 1][j].type && map[i][j].type == map[i + 1][j].type) {
+				for (int k = -1; k <= 1; k++) {
+					map[i + k][j].match++;
+				}
+			}
+			if (map[i][j].type == map[i][j - 1].type && map[i][j].type == map[i][j + 1].type) {
+				for (int k = -1; k <= 1; k++) {
+					map[i][j + k].match++;
+				}
+			}
+		}
+	}
+}
+
+void xiaochu() {
+	for (int i = 1; i <= ROWS; i++) {
+		for (int j = 1; j <= COLS; j++) {
+			if (map[i][j].match && map[i][j].tomin > 10) {
+				map[i][j].tomin -= 10;
+			}
+		}
 	}
 }
 int main() {
@@ -180,7 +221,9 @@ int main() {
 	while (true)
 	{
 		userClick();//处理用户点击操作
+		check();//匹配次数检查
 		move();//方块移动
+		if (!isMoving) { xiaochu(); }//方块消除功能
 		huanYuan();//还原
 		updateWindow();//用来更新窗口
 
