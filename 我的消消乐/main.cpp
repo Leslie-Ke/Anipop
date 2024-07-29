@@ -37,6 +37,9 @@ int click;//表示相邻两个位置的单击次数，第二次点击时才会进行交换
 int posX1, posY1;//第一次单击的行和列
 int posX2, posY2;//第二次单击的行和列
 
+bool isMoving;//表示当前是否在移动
+bool isSwap; //当单击两个相邻的方块后设置为true
+
 void init() {
 	//创建游戏窗口
 	initgraph(WIN_WIDHT, WIN_HEIGHT, 1);
@@ -67,6 +70,8 @@ void init() {
 	}
 
 	click = 0;
+	isMoving = false;
+	isSwap = false;
 }
 
 void updateWindow() {
@@ -121,6 +126,7 @@ void userClick() {
 			if (abs(posX2 - posX1) + abs(posY2 - posY1) == 1) {
 				exchange(posY1, posX1, posY2, posX2);
 				click = 0;
+				isSwap = true;
 				//后续音效
 			}
 			else {
@@ -134,26 +140,39 @@ void userClick() {
 }
 
 void move() {
+	isMoving = false;
 	for (int i = ROWS; i > 0; i--) {
 		for (int j = 1; j <= COLS; j++) {
 			struct block* p = &map[i][j];
+
+			int dx, dy;
 			for (int k = 0; k < 4; k++) {
 
 				int x = off_x + (p->col - 1) * (block_size + 5);
 				int y = off_y + (p->row - 1) * (block_size + 5);
 
-				int dx = p->x - x;
-				int dy = p->y - y;
+				dx = p->x - x;
+				dy = p->y - y;
 
 				if (dx) p->x -= dx / abs(dx);
 				if (dy) p->y -= dy / abs(dy);
 			}
+
+			if (dx || dy) isMoving = true;
 		}
 	}
 }
 
 void huanYuan() {
+	//发生移动后，而且这个单向移动已经结束
+	if (isSwap && !isMoving) {
+		//如果没有匹配到三个或者三个以上的方块，就设置还原
+		if (1) {//后续优化，先完成还原的基础逻辑代码
+			exchange(posY1, posX1, posY2, posX2);
+		}
 
+		isSwap = false;
+	}
 }
 int main() {
 	init();//初始化
