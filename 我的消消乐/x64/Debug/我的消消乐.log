@@ -1,7 +1,4 @@
 ﻿  main.cpp
-D:\vscode\我的消消乐\我的消消乐\main.cpp(47,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
-  tools.cpp
-D:\vscode\我的消消乐\我的消消乐\tools.cpp(135,11): warning C4244: “初始化”: 从“unsigned __int64”转换到“int”，可能丢失数据
-D:\vscode\我的消消乐\我的消消乐\tools.cpp(146,2): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  正在生成代码...
+D:\vscode\我的消消乐\我的消消乐\main.cpp(63,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+D:\vscode\我的消消乐\我的消消乐\main.cpp(181): warning C4700: 使用了未初始化的局部变量“count”
   我的消消乐.vcxproj -> D:\vscode\我的消消乐\x64\Debug\我的消消乐.exe

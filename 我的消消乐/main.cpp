@@ -175,7 +175,7 @@ void huanYuan() {
 	if (isSwap && !isMoving) {
 		//如果没有匹配到三个或者三个以上的方块，就设置还原
 
-		int count;
+		int count = 0;
 		for (int i = 1; i <= ROWS; i++) {
 			for (int j = 1; j <= COLS; j++) {
 				count += map[i][j].match;
@@ -211,9 +211,26 @@ void xiaochu() {
 		for (int j = 1; j <= COLS; j++) {
 			if (map[i][j].match && map[i][j].tomin > 10) {
 				map[i][j].tomin -= 10;
+				isMoving = true;
 			}
 		}
 	}
+}
+
+void  updateGame() {
+	for (int i = ROWS; i >= 1; i--) {
+		for (int j = 1; j <= COLS; j++) {
+			if (map[i][j].match) {
+				for (int k = i - 1; k >= 1; k--) {
+					if (map[k][j].match == 0) {
+						exchange(k, j, i, j);
+						break;
+					}
+				}
+			}
+		}
+	}
+
 }
 int main() {
 	init();//初始化
@@ -226,6 +243,7 @@ int main() {
 		if (!isMoving) { xiaochu(); }//方块消除功能
 		huanYuan();//还原
 		updateWindow();//用来更新窗口
+		if (!isMoving) { updateGame(); }//更新游戏数据，实现方块降落功能
 
 		Sleep(10);//帧等待(后续考虑优化)
 	}
