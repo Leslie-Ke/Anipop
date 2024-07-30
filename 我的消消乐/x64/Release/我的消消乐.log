@@ -1,7 +1,8 @@
 ﻿  main.cpp
-D:\vscode\我的消消乐\我的消消乐\main.cpp(63,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+D:\vscode\我的消消乐\我的消消乐\main.cpp(67,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+D:\vscode\我的消消乐\我的消消乐\main.cpp(108,8): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   正在生成代码
-  2 of 20 functions (10.0%) were compiled, the rest were copied from previous compilation.
+  2 of 22 functions ( 9.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成

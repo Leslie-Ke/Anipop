@@ -3,7 +3,9 @@
 #include <time.h>
 #include <tchar.h>
 #include <math.h>
+#include <mmsystem.h> //播放音乐所需的头文件
 #include "tools.h"//用于实现取消数组图标的小黑边
+#pragma comment(lib,"winmm.lib")//播放音乐的库文件
 
 //开发日志
 //1.构建初始的界面
@@ -45,9 +47,11 @@ int posX2, posY2;//第二次单击的行和列
 bool isMoving;//表示当前是否在移动
 bool isSwap; //当单击两个相邻的方块后设置为true
 
+int score;//设置分数
+
 void init() {
 	//创建游戏窗口
-	initgraph(WIN_WIDHT, WIN_HEIGHT, 1);
+	initgraph(WIN_WIDHT, WIN_HEIGHT,1);
 	loadimage(&imgBg, _T("res/bg2.png"),WIN_WIDHT,WIN_HEIGHT,true);
 	//_T("...") 是一个宏，用于在 Unicode 和 ASCII 编译设置之间自动切换。
 
@@ -66,7 +70,7 @@ void init() {
 	for ( int i = 1; i <= ROWS; i++)
 	{
 		for ( int j = 1; j <= COLS; j++) {
-			map[i][j].type = 1 + rand()%4;
+			map[i][j].type = 1 + rand()%7;
 			map[i][j].row = i;
 			map[i][j].col = j;
 			map[i][j].x = off_x + (j - 1) * (block_size + 5);
@@ -79,6 +83,12 @@ void init() {
 	click = 0;
 	isMoving = false;
 	isSwap = false;
+	score = 0;
+	setFont("Segoe UI Black", 20, 40);//设置分数的字体大小和格式
+
+	mciSendString("play res/bg.mp3 repeat", 0, 0, 0);//播放背景音乐
+	mciSendString("play res/start.mp3", 0, 0, 0);//开始音乐
+	//mciSendString("setaudio res/start.mp3 volume to 90", 0, 0, 0);//调节音量为40%
 }
 
 void updateWindow() {
@@ -93,6 +103,11 @@ void updateWindow() {
 			}
 		}
 	}
+	char scoreStr[16];
+	sprintf_s(scoreStr, sizeof(scoreStr), " %d", score);
+	int x = 394 + (75 - strlen(scoreStr) * 20) / 2;
+	outtextxy(x, 60, scoreStr);
+
 	EndBatchDraw();//结束双缓冲
 }
 
@@ -135,6 +150,7 @@ void userClick() {
 				click = 0;
 				isSwap = true;
 				//后续音效
+				PlaySound("res/pao.wav", 0, SND_FILENAME | SND_ASYNC);//按文件名异步播放
 			}
 			else {
 				click = 1;
@@ -207,13 +223,21 @@ void check() {
 }
 
 void xiaochu() {
+	bool flag = false;
 	for (int i = 1; i <= ROWS; i++) {
 		for (int j = 1; j <= COLS; j++) {
 			if (map[i][j].match && map[i][j].tomin > 10) {
+				if (map[i][j].tomin == 255) {
+					flag = true;
+				}
 				map[i][j].tomin -= 10;
 				isMoving = true;
 			}
 		}
+	}
+
+	if (flag) {
+		PlaySound("res/clear.wav", 0, SND_FILENAME | SND_ASYNC);
 	}
 }
 
@@ -243,22 +267,53 @@ void  updateGame() {
 				map[i][j].tomin = 255;
 			}
 		}
+		score += n;
 	}
 }
+
+void checkScore() {
+	if (score > 90) {
+		setbkcolor(BLACK); // 设置背景颜色为白色
+		settextcolor(BLACK); // 设置文字颜色为黑色t
+		settextstyle(40, 20, _T("Segoe UI Black")); // 设置文字字体和大小
+
+		char ms[64];
+		sprintf_s(ms, sizeof(ms), "挑战成功! 你的分数是%d", score);
+		/*char ms2[64];
+		sprintf_s(ms2, sizeof(ms2), "60秒后重新挑战");*/
+		char ms3[64];
+		sprintf_s(ms3, sizeof(ms3), "关闭控制台即可关闭游戏");
+		
+
+		// 在屏幕中心显示提示
+		int x = (WIN_WIDHT - textwidth(ms)) / 2;
+		int y = (WIN_HEIGHT - textheight(ms)) / 2;
+		outtextxy(x, y, ms);
+		//outtextxy(x, y + 40, ms2);
+		outtextxy(x, y + 80, ms3);
+
+		// 暂停一段时间以让用户看到提示
+		Sleep(60000); // 显示60秒
+		
+		// 重新初始化游戏状态
+		//init();
+	}
+}
+
 int main() {
 	init();//初始化
 	
 	while (true)
 	{
-		userClick();//处理用户点击操作
+		if (!isMoving) { userClick(); }//处理用户点击操作
 		check();//匹配次数检查
 		move();//方块移动
 		if (!isMoving) { xiaochu(); }//方块消除功能
 		huanYuan();//还原
 		updateWindow();//用来更新窗口
-		if (!isMoving) { updateGame(); }//更新游戏数据，实现方块降落功能
-
-		Sleep(10);//帧等待(后续考虑优化)
+		if (!isMoving) { updateGame();}//更新游戏数据，实现方块降落功能以及分数到达后提示
+		if (score >= 90) { checkScore(); }
+		if(isMoving)Sleep(10);//帧等待(后续考虑优化)
 	}
 
 	system("pause");
